@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { dohvati_korisnik_id } from "../database.js";
-import { upisiKorisnikZaglavlje } from "../index.js";
+import { dohvati_korisnik_id } from "../controller/korisnik.js";
+import { upisiKorisnikZaglavlje } from "../utils/helper.js";
 
 export default async (req, res, next) => {
   if (req.path === "/api/login" || req.path === "/api/register") return next();
