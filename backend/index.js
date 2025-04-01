@@ -1,5 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import "dotenv/config";
 import cors from "cors";
 import bcrypt from "bcrypt";
 import connection, {
@@ -16,43 +17,14 @@ import connection, {
   kreiraj_korisnik,
   obrisi_korisnik_id,
 } from "./database.js";
-
-const PORT = 8000;
+import auth from "./middleware/auth.js";
 
 const app = express();
 
 app.use(express.json());
 
 // Auth middleware
-app.use(async (req, res, next) => {
-  if (req.path === "/api/login" || req.path === "/api/register") return next();
-
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (!token) {
-    const error = new Error("Nije prosledjen token");
-    error.status = 400;
-    return next(error);
-  }
-
-  try {
-    const { id } = jwt.verify(token, process.env.JWT_SECRET || "tajna");
-
-    const korisnik = await dohvati_korisnik_id(id);
-    if (!korisnik) {
-      const error = new Error("Token cuva podatke nepostojeceg korisnika");
-      error.status = 400;
-      return next(error);
-    }
-
-    upisiKorisnikZaglavlje(req, korisnik);
-
-    next();
-  } catch (error) {
-    return next(error);
-  }
-});
+app.use(auth);
 
 app.post("/api/login", async (req, res, next) => {
   const { korisnicko_ime, lozinka } = req.body;
@@ -222,15 +194,18 @@ app.put("/api/uloga/:id", async (req, res, next) => {
 
 app.delete("/api/uloga/:id", async (req, res, next) => {});
 
-function generisi_token({ id, uloga_id }) {
+export function generisi_token({ id, uloga_id }) {
   return jwt.sign({ id, uloga_id }, process.env.JWT_SECRET || "tajna");
 }
 
-function upisiKorisnikZaglavlje(req, { id, email, korisnicko_ime, uloga_id }) {
+export function upisiKorisnikZaglavlje(
+  req,
+  { id, email, korisnicko_ime, uloga_id }
+) {
   req.korisnik = { id, email, korisnicko_ime, uloga_id };
 }
 
-function provera_parametra_id({ id }) {
+export function provera_parametra_id({ id }) {
   const checked_id = Number(id);
   if (!Number.isInteger(checked_id) || checked_id < 0) {
     const error = new Error("Id korisnika nije vazeci");
@@ -250,4 +225,5 @@ app.use((error, req, res, next) => {
   });
 });
 
+const PORT = process.env.PORT;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

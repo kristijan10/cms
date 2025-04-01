@@ -1,12 +1,6 @@
 import mysql from "mysql2/promise";
 import bcrypt from "bcrypt";
-
-const connection = await mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "123",
-  database: "cms",
-});
+import connection from "./config.js";
 
 // CREATE korisnik
 export const kreiraj_korisnik = async ({
