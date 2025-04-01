@@ -69,6 +69,7 @@ export async function dohvati_korisnik_kolone(niz_kolone, uslov = null) {
   return rows;
 }
 
+// TODO: pri dodeli uloga_id proveriti da li taj id postoji u bazi
 // UPDATE korisnik
 export async function izmeni_korisnik(id, telo) {
   const poljaZaIzmenu = Object.keys(telo);

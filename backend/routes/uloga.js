@@ -4,8 +4,8 @@ import {
   dohvati_uloga,
   dohvati_uloga_id,
   izmeni_uloga,
-} from "../controller/uloga";
-import { provera_parametra_id } from "../utils/helper";
+} from "../controller/uloga.js";
+import { provera_parametra_id } from "../utils/helper.js";
 
 const router = express.Router();
 

@@ -6,8 +6,8 @@ import {
   dohvati_korisnik_kolone,
   kreiraj_korisnik,
 } from "../controller/korisnik.js";
-import { dohvati_uloga_naziv } from "../controller/uloga";
-import { generisi_token } from "../utils/helper";
+import { dohvati_uloga_naziv } from "../controller/uloga.js";
+import { generisi_token } from "../utils/helper.js";
 import connection from "../config.js";
 
 const router = express.Router();

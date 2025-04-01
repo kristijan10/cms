@@ -1,4 +1,4 @@
-import connection from "./config.js";
+import connection from "../config.js";
 
 export async function kreiraj_uloga({ naziv, opis }) {
   const sql = `INSERT INTO uloga(naziv, opis) VALUES (?, ?)`;
