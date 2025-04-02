@@ -18,73 +18,50 @@ export async function dohvati_uloga_id(id) {
   const sql = `SELECT * FROM uloga WHERE id = ?`;
 
   const [rows] = await connection.execute(sql, [id]);
-  return rows[0];
+  return rows.length ? rows[0] : null;
 }
 
 export async function dohvati_uloga_naziv(naziv) {
   const sql = `SELECT * FROM uloga WHERE naziv = ?`;
 
   const [rows] = await connection.execute(sql, [naziv]);
-  return rows[0];
+  return rows.length ? rows[0] : null;
 }
 
 export async function izmeni_uloga(id, telo) {
-  const poljaZaIzmenu = Object.keys(telo).filter((polje) => polje !== "id");
-
   let uloga = await dohvati_uloga_id(id);
-  if (!uloga) {
-    const error = new Error("Ne postoji uloga");
-    error.status = 404;
-    throw error;
-  }
-  if (!poljaZaIzmenu.length) return uloga;
+  if (!uloga)
+    throw Object.assign(new Error("Ne postoji uloga"), { status: 404 });
 
   const [kolone] = await connection.execute("SHOW COLUMNS FROM uloga");
-  const validnaPolja = kolone.map((kolona) => kolona["Field"]);
+  const validnaPolja = new Set(kolone.map((k) => k.Field));
 
-  const poljaKojeIzmenjujemo = poljaZaIzmenu.filter((naziv) =>
-    validnaPolja.includes(naziv)
+  const poljaKojeIzmenjujemo = Object.keys(telo).filter(
+    (p) => p !== "id" && validnaPolja.has(p)
   );
   if (!poljaKojeIzmenjujemo.length) return uloga;
 
-  const vrednostiZaAžuriranje = poljaKojeIzmenjujemo.map(
-    (polje) => telo[polje]
-  );
+  const vrednostiZaAžuriranje = poljaKojeIzmenjujemo.map((p) => telo[p]);
 
-  const setKlauzula = poljaKojeIzmenjujemo
-    .map((polje) => `${polje} = ?`)
-    .join(", ");
+  const setKlauzula = poljaKojeIzmenjujemo.map((p) => `${p} = ?`).join(", ");
 
   const sql = `UPDATE uloga SET ${setKlauzula} WHERE id = ?`;
 
-  vrednostiZaAžuriranje.push(id);
+  await connection.execute(sql, [...vrednostiZaAžuriranje, id]);
 
-  await connection.execute(sql, vrednostiZaAžuriranje);
-
-  uloga = await dohvati_uloga_id(id);
-  return uloga;
+  return await dohvati_uloga_id(id);
 }
 
 export async function obrisi_uloga_id(id) {
   const sql = `DELETE FROM uloga WHERE id = ?`;
 
-  try {
-    const [result] = await connection.execute(sql, [id]);
-    return result;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const [result] = await connection.execute(sql, [id]);
+  return result;
 }
 
 export async function obrisi_uloga_naziv(naziv) {
   const sql = `DELETE FROM uloga WHERE naziv = ?`;
 
-  try {
-    const [result] = await connection.execute(sql, [naziv]);
-    return result;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  const [result] = await connection.execute(sql, [naziv]);
+  return result;
 }
