@@ -12,6 +12,13 @@ import error from "./middleware/error.js";
 const app = express();
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: ["https://www.postman.com", "http://localhost:3000"],
+    methods: ["GET", "PUT", "POST", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Auth middleware
 app.use(auth);
